@@ -1177,4 +1177,470 @@
                         })
                     });
                     
-                    const data = await response
+                    const data = await response.json();
+                    return data.choices[0].message.content;
+                    
+                } catch (error) {
+                    return this.getLocalResponse();
+                }
+            }
+            
+            getLocalResponse() {
+                const responses = [
+                    "说得真好！还有别的想法吗？",
+                    "这个想法很有趣！为什么呢？",
+                    "我明白了，继续说说看～",
+                    "你真会思考！然后呢？"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+        }
+
+        // ==================== 主应用 ====================
+        class MimigoApp {
+            constructor() {
+                this.profile = StorageService.getProfile();
+                this.stats = StorageService.getStats();
+                this.badges = StorageService.getBadges();
+                this.aiService = new AIService();
+                this.isLoading = false;
+                
+                this.init();
+            }
+            
+            init() {
+                this.renderProfile();
+                this.renderStats();
+                this.renderBadges();
+                this.renderQuickQuestions();
+                this.renderReadingHistory();
+                this.renderBooks('6-8');
+                this.loadChatHistory();
+                this.bindEvents();
+                this.startTimer();
+            }
+            
+            // 渲染孩子档案
+            renderProfile() {
+                document.getElementById('childName').textContent = this.profile.name;
+                document.getElementById('childAge').textContent = this.profile.age;
+                document.getElementById('currentBookTitle').textContent = `正在共读《${this.profile.currentBook}》`;
+                document.getElementById('currentChapter').textContent = this.profile.currentChapter;
+                document.getElementById('progressDisplay').innerHTML = `<i class="fas fa-book-open"></i> ${this.profile.progress}%`;
+                document.getElementById('bookProgress').style.width = this.profile.progress + '%';
+                document.getElementById('progressText').textContent = `已读${this.profile.progress}% · 预计2天完成`;
+                
+                // 编辑表单填充
+                document.getElementById('editName').value = this.profile.name;
+                document.getElementById('editAge').value = this.profile.age;
+                document.getElementById('editLevel').value = this.profile.level;
+                document.getElementById('editBook').value = this.profile.currentBook;
+            }
+            
+            // 渲染统计
+            renderStats() {
+                const hours = Math.floor(this.stats.totalMinutes / 60);
+                const mins = this.stats.totalMinutes % 60;
+                
+                document.getElementById('statsGrid').innerHTML = `
+                    <div class="stat-item">
+                        <div class="stat-number">${hours}h ${mins}m</div>
+                        <div class="stat-label">总阅读</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${this.stats.totalQuestions}</div>
+                        <div class="stat-label">提问数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${this.stats.booksCompleted}</div>
+                        <div class="stat-label">完成书目</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${this.stats.streakDays}</div>
+                        <div class="stat-label">连续阅读</div>
+                    </div>
+                `;
+            }
+            
+            // 渲染成就
+            renderBadges() {
+                const unlocked = this.badges.filter(b => b.unlocked).length;
+                document.getElementById('badgeCount').textContent = `${unlocked}/${this.badges.length}`;
+                
+                document.getElementById('badgesList').innerHTML = this.badges.map(badge => `
+                    <div class="badge ${badge.unlocked ? '' : 'locked'}">
+                        <div class="badge-icon">${badge.icon}</div>
+                        <span style="font-size: 0.8rem;">${badge.name}</span>
+                    </div>
+                `).join('');
+            }
+            
+            // 渲染快捷问题
+            renderQuickQuestions() {
+                const questions = this.aiService.getLocalQuestion(this.profile.age);
+                // 显示多个问题
+                const allQuestions = [
+                    "为什么会这样？",
+                    "如果是你会怎么做？",
+                    "然后发生了什么？",
+                    "你觉得他为什么难过？",
+                    "猜猜接下来"
+                ];
+                
+                document.getElementById('questionChips').innerHTML = allQuestions.map(q => 
+                    `<span class="q-chip">${q}</span>`
+                ).join('');
+            }
+            
+            // 渲染阅读历史
+            renderReadingHistory() {
+                const history = StorageService.getReadingHistory();
+                document.getElementById('timelineList').innerHTML = history.map(item => `
+                    <div class="timeline-item">
+                        <div class="timeline-time">${item.date}</div>
+                        <div class="timeline-content">
+                            <span class="timeline-tag">${item.type === '提问' ? '📖' : (item.type === '思考' ? '💭' : '📚')} ${item.type}</span>
+                            <p>${item.content}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // 渲染推荐书籍
+            renderBooks(ageRange) {
+                const books = {
+                    '6-8': [
+                        { title: '猜猜我有多爱你', cover: '🌳', tags: ['亲情', '温暖'] },
+                        { title: '大卫不可以', cover: '👦', tags: ['习惯', '幽默'] }
+                    ],
+                    '9-12': [
+                        { title: '夏洛的网', cover: '🕷️', tags: ['友谊', '生命'] },
+                        { title: '小王子', cover: '👑', tags: ['哲学', '童话'] }
+                    ],
+                    '13-15': [
+                        { title: '三体', cover: '🌌', tags: ['科幻', '思考'] },
+                        { title: '平凡的世界', cover: '📚', tags: ['成长', '现实'] }
+                    ]
+                };
+                
+                const bookList = books[ageRange] || books['9-12'];
+                
+                document.getElementById('recommendedBooks').innerHTML = bookList.map(book => `
+                    <div class="book-recommend" onclick="app.selectBook('${book.title}')">
+                        <div style="background: #c1e0d6; width: 50px; height: 70px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                            ${book.cover}
+                        </div>
+                        <div>
+                            <h5>《${book.title}》</h5>
+                            <p style="font-size: 0.9rem;">${book.tags.join(' · ')}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // 选择书籍
+            selectBook(title) {
+                this.profile.currentBook = title;
+                this.profile.progress = 0;
+                StorageService.saveProfile(this.profile);
+                this.renderProfile();
+                
+                // 添加系统消息
+                this.addMessage(`我们开始读《${title}》吧！你想先了解什么呢？`, false);
+            }
+            
+            // 加载聊天历史
+            loadChatHistory() {
+                const history = StorageService.getChatHistory();
+                const messagesDiv = document.getElementById('chatMessages');
+                
+                if (history.length > 0) {
+                    messagesDiv.innerHTML = '';
+                    history.forEach(msg => {
+                        this.addMessage(msg.text, msg.isChild, false);
+                    });
+                } else {
+                    // 默认欢迎消息
+                    messagesDiv.innerHTML = '';
+                    this.addMessage('嗨！我是mimigo。今天我们读《夏洛的网》，你有什么想法吗？', false);
+                }
+            }
+            
+            // 添加消息
+            addMessage(text, isChild = false, save = true) {
+                const messagesDiv = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isChild ? 'child' : 'mimigo'}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'msg-avatar';
+                avatar.innerHTML = isChild ? '<i class="fas fa-child"></i>' : '<i class="fas fa-robot"></i>';
+                
+                const content = document.createElement('div');
+                content.className = 'msg-content';
+                content.textContent = text;
+                
+                const time = document.createElement('div');
+                time.className = 'msg-time';
+                time.textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                
+                content.appendChild(time);
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(content);
+                messagesDiv.appendChild(messageDiv);
+                
+                // 滚动到底部
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // 保存到历史
+                if (save) {
+                    StorageService.addChatMessage({ text, isChild });
+                }
+            }
+            
+            // 显示加载状态
+            setLoading(loading) {
+                this.isLoading = loading;
+                const overlay = document.getElementById('loadingOverlay');
+                const sendBtn = document.getElementById('sendBtn');
+                const input = document.getElementById('messageInput');
+                
+                if (loading) {
+                    overlay.classList.add('show');
+                    sendBtn.disabled = true;
+                    input.disabled = true;
+                } else {
+                    overlay.classList.remove('show');
+                    sendBtn.disabled = false;
+                    input.disabled = false;
+                }
+            }
+            
+            // 显示打字指示器
+            showTyping() {
+                const messagesDiv = document.getElementById('chatMessages');
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message mimigo typing';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = `
+                    <div class="msg-avatar"><i class="fas fa-robot"></i></div>
+                    <div class="typing-indicator">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                `;
+                messagesDiv.appendChild(typingDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+            
+            // 隐藏打字指示器
+            hideTyping() {
+                const typing = document.getElementById('typingIndicator');
+                if (typing) typing.remove();
+            }
+            
+            // 发送消息
+            async sendMessage() {
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                if (!text || this.isLoading) return;
+                
+                // 添加孩子消息
+                this.addMessage(text, true);
+                input.value = '';
+                
+                // 更新统计
+                this.stats = StorageService.updateStats('question');
+                this.renderStats();
+                
+                // 添加阅读记录
+                StorageService.addReadingRecord({
+                    type: '提问',
+                    content: text.substring(0, 30) + (text.length > 30 ? '...' : ''),
+                    date: '今天'
+                });
+                this.renderReadingHistory();
+                
+                // 显示AI正在输入
+                this.showTyping();
+                this.setLoading(true);
+                
+                try {
+                    // 获取最近的对话上下文
+                    const history = StorageService.getChatHistory().slice(-5);
+                    const recentMessages = history.map(h => 
+                        (h.isChild ? '孩子：' : 'mimigo：') + h.text
+                    );
+                    
+                    // 调用AI生成回复
+                    const context = {
+                        age: this.profile.age,
+                        recentMessages: recentMessages
+                    };
+                    
+                    // 如果是第一个回复，用分析模式，否则生成新问题
+                    let reply;
+                    if (history.length > 0 && history[history.length-1].isChild) {
+                        reply = await this.aiService.analyzeResponse(text, context);
+                    } else {
+                        reply = await this.aiService.generateQuestion(context);
+                    }
+                    
+                    // 隐藏打字指示器，添加回复
+                    this.hideTyping();
+                    this.addMessage(reply, false);
+                    
+                } catch (error) {
+                    console.error('AI回复错误', error);
+                    this.hideTyping();
+                    this.addMessage('你的想法很有趣！能再多说一点吗？', false);
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+            
+            // 绑定事件
+            bindEvents() {
+                // 发送消息
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage());
+                
+                // 回车发送
+                document.getElementById('messageInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+                
+                // 快捷问题点击
+                document.getElementById('questionChips').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('q-chip')) {
+                        document.getElementById('messageInput').value = e.target.textContent;
+                        this.sendMessage();
+                    }
+                });
+                
+                // 编辑档案
+                document.getElementById('profileButton').addEventListener('click', () => {
+                    document.getElementById('profileModal').classList.add('show');
+                });
+                
+                // 关闭模态框
+                document.getElementById('closeModal').addEventListener('click', () => {
+                    document.getElementById('profileModal').classList.remove('show');
+                });
+                
+                // 保存档案
+                document.getElementById('profileForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    this.profile = {
+                        name: document.getElementById('editName').value,
+                        age: parseInt(document.getElementById('editAge').value),
+                        level: document.getElementById('editLevel').value,
+                        currentBook: document.getElementById('editBook').value,
+                        currentChapter: this.profile.currentChapter,
+                        progress: this.profile.progress
+                    };
+                    
+                    StorageService.saveProfile(this.profile);
+                    this.renderProfile();
+                    document.getElementById('profileModal').classList.remove('show');
+                });
+                
+                // 年龄标签切换
+                document.querySelectorAll('.age-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.age-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        this.renderBooks(tab.dataset.age);
+                    });
+                });
+                
+                // 配置API按钮
+                document.getElementById('configApiBtn').addEventListener('click', () => {
+                    const config = StorageService.getApiConfig();
+                    document.getElementById('apiKey').value = config.key;
+                    document.getElementById('apiEndpoint').value = config.endpoint;
+                    document.getElementById('apiStatus').textContent = config.enabled ? '🟢 已连接' : '⚫ 未连接';
+                    document.getElementById('apiStatus').className = config.enabled ? 'api-status connected' : 'api-status disconnected';
+                    document.getElementById('apiModal').classList.add('show');
+                });
+                
+                // 关闭API模态框
+                document.getElementById('closeApiModal').addEventListener('click', () => {
+                    document.getElementById('apiModal').classList.remove('show');
+                });
+                
+                // 测试API连接
+                document.getElementById('testApiBtn').addEventListener('click', async () => {
+                    const key = document.getElementById('apiKey').value;
+                    const endpoint = document.getElementById('apiEndpoint').value;
+                    
+                    if (!key) {
+                        alert('请输入API密钥');
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${key}`
+                            },
+                            body: JSON.stringify({
+                                model: 'deepseek-chat',
+                                messages: [{ role: 'user', content: 'test' }],
+                                max_tokens: 5
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            document.getElementById('apiStatus').textContent = '🟢 连接成功';
+                            document.getElementById('apiStatus').className = 'api-status connected';
+                        } else {
+                            throw new Error('连接失败');
+                        }
+                    } catch (error) {
+                        document.getElementById('apiStatus').textContent = '🔴 连接失败';
+                        document.getElementById('apiStatus').className = 'api-status disconnected';
+                    }
+                });
+                
+                // 保存API配置
+                document.getElementById('saveApiBtn').addEventListener('click', () => {
+                    const config = {
+                        key: document.getElementById('apiKey').value,
+                        endpoint: document.getElementById('apiEndpoint').value,
+                        enabled: document.getElementById('apiStatus').classList.contains('connected')
+                    };
+                    
+                    StorageService.saveApiConfig(config);
+                    this.aiService.config = config;
+                    document.getElementById('apiModal').classList.remove('show');
+                });
+                
+                // 点击外部关闭模态框
+                window.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal')) {
+                        e.target.classList.remove('show');
+                    }
+                });
+            }
+            
+            // 模拟实时更新阅读时长
+            startTimer() {
+                setInterval(() => {
+                    this.stats = StorageService.updateStats('minute', 1);
+                    this.renderStats();
+                }, 60000); // 每分钟更新
+            }
+        }
+
+        // ==================== 启动应用 ====================
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new MimigoApp();
+        });
+    </script>
+</body>
+</html>
