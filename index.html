@@ -12,29 +12,44 @@
         }
 
         body {
-            font-family: 'Quicksand', 'Segoe UI', sans-serif;
-            background: #fdf9f2;
-            color: #3a2c3b;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0f1e 0%, #1b1f35 100%);
+            color: #fff;
             line-height: 1.6;
         }
 
-        /* 装饰性背景 */
-        .bg-dots {
+        /* 星空背景动画 */
+        .stars, .twinkling {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: radial-gradient(#e0d6cd 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.4;
             z-index: -1;
+        }
+
+        .stars {
+            background: #000 url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMiIgaGVpZ2h0PSIyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxjaXJjbGUgY3g9IjEiIGN5PSIxIiByPSIxIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==') repeat;
+            opacity: 0.5;
+        }
+
+        .twinkling {
+            background: transparent url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxjaXJjbGUgY3g9IjIiIGN5PSIyIiByPSIxIiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC4zIi8+PC9zdmc+') repeat;
+            animation: twinkle 200s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes twinkle {
+            from { transform: translateX(0); }
+            to { transform: translateX(-1000px); }
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 24px;
+            position: relative;
+            z-index: 1;
         }
 
         /* 导航 */
@@ -44,12 +59,13 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .logo {
             font-size: 2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #f9a8d4, #b8a1d9);
+            background: linear-gradient(135deg, #7b9eff, #a77cf9);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-decoration: none;
@@ -62,129 +78,95 @@
 
         .nav-links a {
             text-decoration: none;
-            color: #5e4b5e;
+            color: #a0b3d9;
             font-weight: 500;
             transition: color 0.2s;
-            font-size: 1.1rem;
         }
 
         .nav-links a:hover {
-            color: #d88c9a;
+            color: #7b9eff;
         }
 
         /* 英雄区 */
         .hero {
-            display: flex;
-            align-items: center;
-            gap: 60px;
-            margin: 40px 0 80px;
-            flex-wrap: wrap;
-        }
-
-        .hero-content {
-            flex: 1;
-            min-width: 300px;
+            text-align: center;
+            padding: 100px 0 60px;
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: 700;
             line-height: 1.2;
             margin-bottom: 24px;
-            color: #3a2c3b;
         }
 
         .hero h1 span {
-            background: linear-gradient(135deg, #f9a8d4, #b8a1d9);
+            background: linear-gradient(135deg, #7b9eff, #a77cf9);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .hero p {
             font-size: 1.3rem;
-            color: #6b5e6b;
-            margin-bottom: 32px;
+            color: #b0c3e6;
+            max-width: 700px;
+            margin: 0 auto 40px;
         }
 
-        .hero-illustration {
-            flex: 1;
-            min-width: 300px;
-            text-align: center;
-        }
-
-        .hero-illustration svg {
-            max-width: 100%;
-            height: auto;
-        }
-
-        /* 信念卡片 */
+        /* 信念卡 */
         .belief-card {
-            background: white;
-            padding: 40px;
-            border-radius: 60px 60px 60px 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 60px;
+            border-radius: 40px;
             margin: 60px 0;
-            border: 2px solid #f3e5de;
-            position: relative;
-        }
-
-        .belief-card::before {
-            content: "“";
-            font-size: 8rem;
-            color: #f9a8d4;
-            opacity: 0.3;
-            position: absolute;
-            top: -20px;
-            left: 20px;
-            font-family: serif;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
         .belief-card p {
             font-size: 2rem;
-            font-weight: 400;
-            color: #4a3b4a;
-            line-height: 1.4;
-            text-align: center;
-            margin-bottom: 16px;
+            color: #fff;
+            font-weight: 300;
+            line-height: 1.5;
+            margin-bottom: 20px;
         }
 
         .belief-card small {
-            display: block;
-            text-align: right;
-            color: #b8a1d9;
+            color: #7b9eff;
             font-size: 1.2rem;
         }
 
-        /* 探索卡片网格 */
+        /* 主题卡片 */
         .section-title {
             text-align: center;
             font-size: 2.5rem;
             margin: 80px 0 40px;
-            color: #3a2c3b;
         }
 
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 30px;
-            margin: 40px 0;
         }
 
         .card {
-            background: white;
-            padding: 36px 24px;
-            border-radius: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px 30px;
+            border-radius: 30px;
             text-align: center;
             transition: transform 0.2s;
-            border: 2px solid #f3e5de;
         }
 
         .card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-10px);
+            border-color: #7b9eff;
         }
 
-        .card-emoji {
+        .card .emoji {
             font-size: 3.5rem;
             margin-bottom: 20px;
         }
@@ -192,50 +174,47 @@
         .card h3 {
             font-size: 1.6rem;
             margin-bottom: 12px;
-            color: #4a3b4a;
+            color: #fff;
         }
 
         .card p {
-            color: #7a6b7a;
+            color: #b0c3e6;
         }
 
-        /* 家长评价 */
+        /* 评价 */
         .testimonials {
-            background: #f8efe8;
-            padding: 60px 0;
-            border-radius: 100px 100px 0 0;
-            margin: 80px 0 0;
+            margin: 100px 0;
         }
 
         .testimonial-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
-            margin: 40px 0;
         }
 
         .testimonial {
-            background: white;
-            padding: 32px;
-            border-radius: 40px;
-            border: 2px solid #e8d9d1;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 30px;
         }
 
         .testimonial p {
-            font-size: 1.1rem;
-            color: #4a3b4a;
+            color: #d0e0ff;
             margin-bottom: 16px;
         }
 
         .testimonial-author {
-            color: #d88c9a;
+            color: #7b9eff;
             font-weight: 600;
         }
 
-        /* 联系区 */
+        /* 联系 */
         .contact {
             text-align: center;
             padding: 60px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .contact h2 {
@@ -244,39 +223,32 @@
         }
 
         .contact-email {
-            font-size: 1.5rem;
-            background: white;
-            padding: 16px 40px;
             display: inline-block;
-            border-radius: 60px;
-            border: 2px solid #f3e5de;
-            color: #d88c9a;
+            padding: 16px 48px;
+            background: linear-gradient(135deg, #7b9eff, #a77cf9);
+            color: white;
             text-decoration: none;
+            border-radius: 60px;
+            font-size: 1.2rem;
             margin: 20px 0;
+            transition: transform 0.2s;
         }
 
-        /* 页脚 */
+        .contact-email:hover {
+            transform: scale(1.05);
+        }
+
         .footer {
             text-align: center;
             padding: 40px 0;
-            color: #9a8b9a;
-            border-top: 2px solid #f3e5de;
-        }
-
-        /* 响应式 */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            .belief-card p {
-                font-size: 1.5rem;
-            }
+            color: #6b7a9c;
         }
     </style>
 </head>
 <body>
-    <div class="bg-dots"></div>
-    
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+
     <div class="container">
         <nav class="nav">
             <a href="/" class="logo">mimigo.ai</a>
@@ -288,74 +260,61 @@
         </nav>
 
         <div class="hero">
-            <div class="hero-content">
-                <h1>和 <span>mimigo</span> 一起，<br>探索世界的奇妙</h1>
-                <p>一个温暖的 AI 伙伴，专为 6–15 岁孩子设计。<br>我们不直接给答案，而是用启发式提问陪孩子成长。</p>
-            </div>
-            <div class="hero-illustration">
-                <svg width="300" height="300" viewBox="0 0 300 300">
-                    <circle cx="150" cy="150" r="120" fill="#f9e2d7" />
-                    <circle cx="120" cy="120" r="15" fill="#f9a8d4" />
-                    <circle cx="180" cy="120" r="15" fill="#f9a8d4" />
-                    <path d="M110 180 Q150 220,190 180" stroke="#b8a1d9" stroke-width="8" fill="none" stroke-linecap="round" />
-                    <circle cx="150" cy="180" r="10" fill="#d88c9a" />
-                </svg>
-            </div>
+            <h1>和 <span>mimigo</span> 一起，<br>探索未知的宇宙</h1>
+            <p>一个来自未来的 AI 伙伴，陪孩子仰望星空，潜入深海，<br>用提问点亮好奇心。</p>
         </div>
 
         <div class="belief-card">
-            <p>每个孩子天生都是探索家。<br>好奇心，是最好的老师。</p>
+            <p>“每个孩子都是天生的探索家。<br>好奇心，是指引他们穿越未知的星光。”</p>
             <small>—— mimigo 的信念</small>
         </div>
 
-        <h2 class="section-title" id="explore">✨ 探索主题</h2>
+        <h2 class="section-title" id="explore">✨ 探索任务</h2>
         <div class="card-grid">
             <div class="card">
-                <div class="card-emoji">🌊</div>
-                <h3>海洋奥秘</h3>
-                <p>为什么海水是咸的？深海里有什么？和 mimigo 一起潜入蓝色星球。</p>
+                <div class="emoji">🌊</div>
+                <h3>深海任务</h3>
+                <p>潜入马里亚纳海沟，揭秘深海发光生物。</p>
             </div>
             <div class="card">
-                <div class="card-emoji">🔭</div>
-                <h3>仰望星空</h3>
-                <p>星星为什么会眨眼？黑洞是什么？满足每个孩子对宇宙的好奇。</p>
+                <div class="emoji">🚀</div>
+                <h3>星际任务</h3>
+                <p>飞越冥王星，寻找宇宙中的第二个地球。</p>
             </div>
             <div class="card">
-                <div class="card-emoji">🤔</div>
-                <h3>启发提问</h3>
-                <p>遇到难题时，先问“你觉得第一步该做什么？”培养独立思考的习惯。</p>
+                <div class="emoji">🧬</div>
+                <h3>生命任务</h3>
+                <p>探索 DNA 的奥秘，像科学家一样思考。</p>
             </div>
             <div class="card">
-                <div class="card-emoji">📚</div>
-                <h3>爱上学习</h3>
-                <p>让学习像寻宝一样有趣，在探索中收获知识和自信。</p>
+                <div class="emoji">🤖</div>
+                <h3>未来任务</h3>
+                <p>AI 如何思考？和 mimigo 一起设计机器人。</p>
             </div>
         </div>
 
         <div class="testimonials" id="stories">
-            <div class="container">
-                <h2 class="section-title">👪 家长说</h2>
-                <div class="testimonial-grid">
-                    <div class="testimonial">
-                        <p>“孩子以前遇到难题就直接放弃，现在会自己先想想，还会跑来跟我说‘妈妈，mimigo 让我先找找题目里的线索’。”</p>
-                        <div class="testimonial-author">—— 小宇妈妈</div>
-                    </div>
-                    <div class="testimonial">
-                        <p>“mimigo 就像孩子的一个知识朋友，陪他聊恐龙、聊太空，我明显感觉他提问变多了。”</p>
-                        <div class="testimonial-author">—— 乐乐爸爸</div>
-                    </div>
+            <h2 class="section-title">🌟 探索者家庭说</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial">
+                    <p>“孩子第一次问我‘黑洞里面有什么’，然后自己用积木搭了一个黑洞模型，那一刻我看到了探索的力量。”</p>
+                    <div class="testimonial-author">—— 小宇妈妈</div>
+                </div>
+                <div class="testimonial">
+                    <p>“mimigo 让学习变成了一场冒险，孩子每天最期待的就是‘今天的探索任务’。”</p>
+                    <div class="testimonial-author">—— 乐乐爸爸</div>
                 </div>
             </div>
         </div>
 
         <div class="contact" id="contact">
-            <h2>🚀 即将上线</h2>
-            <p style="color: #6b5e6b; max-width: 500px; margin: 0 auto 24px;">我们正在精心准备第一批探索主题，很快就会和你见面。</p>
-            <a href="mailto:hello@mimigo.ai" class="contact-email">📧 hello@mimigo.ai</a>
+            <h2>准备启航</h2>
+            <p style="color: #b0c3e6; margin-bottom: 30px;">首批探索任务即将上线，加入我们，成为第一批探索者。</p>
+            <a href="mailto:hello@mimigo.ai" class="contact-email">hello@mimigo.ai</a>
         </div>
 
         <footer class="footer">
-            © 2026 mimigo.ai · 陪孩子发现世界的奇妙
+            © 2026 mimigo.ai · 陪孩子探索未知
         </footer>
     </div>
 </body>
